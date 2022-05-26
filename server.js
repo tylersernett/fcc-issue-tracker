@@ -5,7 +5,7 @@ const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
 const cors        = require('cors');
 require('dotenv').config();
-
+require("./db-connection");
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
@@ -45,6 +45,8 @@ app.use(function(req, res, next) {
     .type('text')
     .send('Not Found');
 });
+
+
 
 //Start our server and tests!
 const listener = app.listen(process.env.PORT || 3000, function () {
