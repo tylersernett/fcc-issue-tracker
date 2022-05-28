@@ -21,7 +21,7 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//Sample front-end
+//colon allows for variable project names
 app.route('/:project/')
   .get(function (req, res) {
     res.sendFile(process.cwd() + '/views/issue.html');
@@ -45,7 +45,6 @@ app.use(function(req, res, next) {
     .type('text')
     .send('Not Found');
 });
-
 
 
 //Start our server and tests!

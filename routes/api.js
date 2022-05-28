@@ -10,7 +10,9 @@ module.exports = function (app) {
 
       .get(function (req, res) {
          let project = req.params.project;
-
+         const { _id, open, issue_title, issue_text, created_by, assigned_to, status_text } = res.query;
+         IssueModel.find()
+         ProjectModel.aggregate()
 
       })
 
