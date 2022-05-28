@@ -24,7 +24,7 @@ module.exports = function (app) {
          })
       })
 
-      
+
       .post(function (req, res) {
          let project = req.params.project; //from URL
          //grab vars from req.body & check for required fields
@@ -66,7 +66,13 @@ module.exports = function (app) {
 
       .delete(function (req, res) {
          let project = req.params.project;
-
+         IssueModel.findOneAndDelete({ project: project, _id: req.body._id }, (err, data) => {
+            if (err){
+               console.error('error deleting')
+            } else {
+               console.log('deleted: \n' + data)
+            }
+         });
       });
 
 };
