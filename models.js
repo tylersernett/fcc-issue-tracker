@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const IssueSchema = new mongoose.Schema({
+    project: {type: String},
     issue_title: { type: String, required: true },
     issue_text: { type: String, required: true },
     created_by: { type: String, required: true },
@@ -12,11 +13,11 @@ const IssueSchema = new mongoose.Schema({
 });
 const Issue = mongoose.model("Issue", IssueSchema);
 
-const ProjectSchema = new mongoose.Schema({
-    name: {type: String, required: true},
-    issues: [IssueSchema]
-});
-const Project = mongoose.model("Project", ProjectSchema);
+// const ProjectSchema = new mongoose.Schema({
+//     name: {type: String, required: true},
+//     issues: [IssueSchema]
+// });
+// const Project = mongoose.model("Project", ProjectSchema);
 
 exports.Issue = Issue;
-exports.Project = Project;
+// exports.Project = Project;
