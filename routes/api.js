@@ -30,7 +30,7 @@ module.exports = function (app) {
          //grab vars from req.body & check for required fields
          const { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
          if (!issue_title || !issue_text || !created_by) {
-            res.json({ error: 'missing required field(s)' });
+            res.json('missing required field(s)' );
             return;
          }
 
@@ -62,6 +62,10 @@ module.exports = function (app) {
          let project = req.params.project;
          const {_id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
          console.log(req.body)
+         if (!_id){
+            res.json({ error: 'missing required id' });
+            return;
+         }
          IssueModel.findByIdAndUpdate(_id,{issue_title: issue_title, issue_text: issue_text, created_by: created_by, assigned_to: assigned_to, status_text:status_text, open: !open}, (err, doc)=>{
             if (err){
                console.error("error finding ID")
@@ -74,7 +78,12 @@ module.exports = function (app) {
 
       .delete(function (req, res) {
          let project = req.params.project;
-         IssueModel.findOneAndDelete({ project: project, _id: req.body._id }, (err, data) => {
+         const _id = req.body._id;
+         if (!_id){
+            res.json({ error: 'missing required id' });
+            return;
+         }
+         IssueModel.findOneAndDelete({ project: project, _id: _id }, (err, data) => {
             if (err){
                console.error('error deleting')
             } else {
