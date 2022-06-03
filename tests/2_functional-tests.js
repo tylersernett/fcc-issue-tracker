@@ -66,4 +66,57 @@ suite('Functional Tests', function () {
       });
 
    });
+
+   suite('POST /api/issues/{project} => array of objects w/ issue data', function () {
+      test('no filter', function (done) {
+         chai.request(server)
+            .get('/api/issues/chai')
+            .query({})
+            .end(function (err, res) {
+               assert.equal(res.status, 200);
+               assert.isArray(res.body);
+               assert.property(res.body[0], "issue_title");
+               assert.property(res.body[0], "issue_text");
+               assert.property(res.body[0], "created_on");
+               assert.property(res.body[0], "updated_on");
+               assert.property(res.body[0], "created_by");
+               assert.property(res.body[0], "assigned_to");
+               assert.property(res.body[0], "open");
+               assert.property(res.body[0], "status_text");
+               assert.property(res.body[0], "_id");
+               done();
+            });
+      })
+
+      test('one filter', function (done) {
+         chai.request(server)
+            .get('/api/issues/chai')
+            .query({status_text: "chaistat"})
+            .end(function (err, res) {
+               res.body.forEach(issueResult => {
+                  assert.equal(
+                    issueResult.status_text,
+                    "chaistat"
+                  );
+                });
+               done();
+            });
+      })
+
+      test('multiple filters', function (done) {
+         chai.request(server)
+            .get('/api/issues/chai')
+            .query({status_text: "chaistat", open: true})
+            .end(function (err, res) {
+               res.body.forEach(issueResult => {
+                  assert.equal(issueResult.open, true);
+                  assert.equal(
+                    issueResult.status_text,
+                    "chaistat"
+                  );
+                });
+               done();
+            });
+      })
+   })
 });
