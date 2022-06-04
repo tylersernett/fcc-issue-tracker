@@ -5,6 +5,9 @@ const server = require('../server');
 
 chai.use(chaiHttp);
 
+let id_test = "";
+let id_test2 = "";
+
 suite('Functional Tests', function () {
    suite('POST /api/issues/{project} => object w/ issue data', function () {
       test('Create issue (all fields)', function (done) {
@@ -26,6 +29,7 @@ suite('Functional Tests', function () {
                assert.equal(res.body.assigned_to, "chaias");
                assert.equal(res.body.status_text, "chaistat");
                assert.equal(res.body.open, true);
+               id_test = res.body._id; //for latter test
                done();
             });
       });
@@ -47,6 +51,7 @@ suite('Functional Tests', function () {
                assert.equal(res.body.assigned_to, "");
                assert.equal(res.body.status_text, "");
                assert.equal(res.body.open, true);
+               id_test2 = res.body._id; //for latter test
                done();
             });
       });
@@ -67,7 +72,7 @@ suite('Functional Tests', function () {
 
    });
 
-   suite('POST /api/issues/{project} => array of objects w/ issue data', function () {
+   suite('GET /api/issues/{project} => array of objects w/ issue data', function () {
       test('no filter', function (done) {
          chai.request(server)
             .get('/api/issues/chai')
@@ -91,14 +96,14 @@ suite('Functional Tests', function () {
       test('one filter', function (done) {
          chai.request(server)
             .get('/api/issues/chai')
-            .query({status_text: "chaistat"})
+            .query({ status_text: "chaistat" })
             .end(function (err, res) {
                res.body.forEach(issueResult => {
                   assert.equal(
-                    issueResult.status_text,
-                    "chaistat"
+                     issueResult.status_text,
+                     "chaistat"
                   );
-                });
+               });
                done();
             });
       })
@@ -106,17 +111,59 @@ suite('Functional Tests', function () {
       test('multiple filters', function (done) {
          chai.request(server)
             .get('/api/issues/chai')
-            .query({status_text: "chaistat", open: true})
+            .query({ status_text: "chaistat", open: true })
             .end(function (err, res) {
                res.body.forEach(issueResult => {
                   assert.equal(issueResult.open, true);
                   assert.equal(
-                    issueResult.status_text,
-                    "chaistat"
+                     issueResult.status_text,
+                     "chaistat"
                   );
-                });
+               });
                done();
             });
       })
+   })
+
+   suite('PUT /api/issues/{project} => text', function () {
+      test("No body", function (done) {
+         chai
+            .request(server)
+            .put("/api/issues/chai")
+            .send({})
+            .end(function (err, res) {
+               assert.equal(res.body, "missing required id");
+               done();
+            });
+      });
+
+      test("One field to update", function (done) {
+         chai
+            .request(server)
+            .put("/api/issues/chai")
+            .send({
+               _id: id_test,
+               issue_text: "updated text"
+            })
+            .end(function (err, res) {
+               assert.equal(res.body, "update success");
+               done();
+            });
+      });
+
+      test("Two fields to update", function (done) {
+         chai
+            .request(server)
+            .put("/api/issues/chai")
+            .send({
+               _id: id_test2,
+               issue_text: "updated text",
+               issue_title: "updated title"
+            })
+            .end(function (err, res) {
+               assert.equal(res.body, "update success");
+               done();
+            });
+      });
    })
 });

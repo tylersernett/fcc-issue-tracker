@@ -63,14 +63,19 @@ module.exports = function (app) {
          const {_id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
          console.log(req.body)
          if (!_id){
-            res.json({ error: 'missing required id' });
+            res.json('missing required id');
             return;
          }
+         // if (!issue_title && !issue_text && !created_by && !assigned_to && !status_text && !open) {
+         //    res.json("no fields to update")
+         //    return;
+         // }
          IssueModel.findByIdAndUpdate(_id,{issue_title: issue_title, issue_text: issue_text, created_by: created_by, assigned_to: assigned_to, status_text:status_text, open: !open}, (err, doc)=>{
             if (err){
-               console.error("error finding ID")
+               console.error("error finding ID");
             } else {
-               console.log("update success: \n" + doc)
+               res.json("update success");
+               //console.log("update success: \n" + doc)
             }         
          })
       })
