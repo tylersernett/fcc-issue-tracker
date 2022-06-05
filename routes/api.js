@@ -19,6 +19,7 @@ module.exports = function (app) {
                return res.json(arrayOfIssues)
             } else {
                console.error("error finding issues in db")
+               return;
             }
          })
       })
@@ -29,7 +30,7 @@ module.exports = function (app) {
          //grab vars from req.body & check for required fields
          const { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
          if (!issue_title || !issue_text || !created_by) {
-            res.json('missing required field(s)');
+            res.json({ error: 'required field(s) missing' });
             return;
          }
 
@@ -49,8 +50,10 @@ module.exports = function (app) {
          newIssue.save((err, data) => {
             if (err || !data) {
                res.send("Error saving post");
+               return;
             } else {
                res.json(newIssue); //return newIssue from above in JSON form
+               return;
             }
          });
       })
@@ -60,22 +63,30 @@ module.exports = function (app) {
          let project = req.params.project;
          const { _id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
          if (!_id) {
-            res.json('missing required id');
+            res.json({ error: 'missing _id' });
             return;
          }
 
-         if (!issue_title && !issue_text && !created_by && !assigned_to && !status_text && !open){
-            res.json('no fields to update');
+         if (!issue_title && !issue_text && !created_by && !assigned_to && !status_text && !open) {
+            res.json({ error: 'no update field(s) sent', _id: _id });
             return;
          }
 
          //set 'open' equal to the opposite [checked = !open, unchecked = open]
-         IssueModel.findByIdAndUpdate(_id, { issue_title: issue_title, issue_text: issue_text, created_by: created_by, assigned_to: assigned_to, status_text: status_text, open: !open }, (err, doc) => {
-            if (!doc) {
-               res.json('invalid id');
+         IssueModel.findByIdAndUpdate(_id, {
+            issue_title: issue_title,
+            issue_text: issue_text,
+            created_by: created_by,
+            assigned_to: assigned_to,
+            status_text: status_text,
+            open: !open,
+            updated_on: new Date()
+         }, (err, doc) => {
+            if (err) {
+               res.json({ error: 'could not update', _id: _id });
                return;
             } else {
-               res.json("update success");
+               res.json({ result: 'successfully updated', _id: _id })
                return;
                //console.log("update success: \n" + doc)
             }
@@ -87,14 +98,16 @@ module.exports = function (app) {
          let project = req.params.project;
          const _id = req.body._id;
          if (!_id) {
-            res.json('missing required id');
+            res.json({ error: 'missing _id' });
             return;
          }
          IssueModel.findOneAndDelete({ project: project, _id: _id }, (err, data) => {
             if (err) {
-               console.error('error deleting')
+               res.json({ error: 'could not delete', _id: _id });
+               return;
             } else {
-               console.log('deleted: \n' + data)
+               res.json({ result: 'successfully deleted', _id: _id });
+               return;
             }
          });
       });

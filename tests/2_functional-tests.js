@@ -9,6 +9,7 @@ let id_test = "";
 let id_test2 = "";
 
 suite('Functional Tests', function () {
+
    suite('POST /api/issues/{project} => object w/ issue data', function () {
       test('Create issue (all fields)', function (done) {
          chai.request(server)
@@ -65,12 +66,13 @@ suite('Functional Tests', function () {
             })
             .end(function (err, res) {
                assert.equal(res.status, 200);
-               assert.equal(res.body, "missing required field(s)");
+               assert.equal(res.body.error, 'required field(s) missing');
                done();
             });
       });
 
    });
+
 
    suite('GET /api/issues/{project} => array of objects w/ issue data', function () {
       test('no filter', function (done) {
@@ -125,6 +127,7 @@ suite('Functional Tests', function () {
       })
    })
 
+
    suite('PUT /api/issues/{project} => text', function () {
       test("No id", function (done) {
          chai
@@ -132,7 +135,7 @@ suite('Functional Tests', function () {
             .put("/api/issues/chai")
             .send({})
             .end(function (err, res) {
-               assert.equal(res.body, "missing required id");
+               assert.equal(res.body.error, "missing _id");
                done();
             });
       });
@@ -146,7 +149,7 @@ suite('Functional Tests', function () {
                issue_text: "updated text",
             })
             .end(function (err, res) {
-               assert.equal(res.body, "invalid id");
+               assert.equal(res.body.error, "could not update");
                done();
             });
       });
@@ -160,7 +163,7 @@ suite('Functional Tests', function () {
                issue_text: "updated text"
             })
             .end(function (err, res) {
-               assert.equal(res.body, "update success");
+               assert.equal(res.body.result, "successfully updated");
                done();
             });
       });
@@ -175,7 +178,7 @@ suite('Functional Tests', function () {
                issue_title: "updated title"
             })
             .end(function (err, res) {
-               assert.equal(res.body, "update success");
+               assert.equal(res.body.result, "successfully updated");
                done();
             });
       });
@@ -188,9 +191,49 @@ suite('Functional Tests', function () {
                _id: id_test
             })
             .end(function (err, res) {
-               assert.equal(res.body, "no fields to update");
+               assert.equal(res.body.error, "no update field(s) sent");
                done();
             });
       });
-   })
+   });
+
+
+   suite("DELETE /api/issues/{project} => text", function () {
+      test("No id", function (done) {
+         chai
+            .request(server)
+            .delete("/api/issues/chai")
+            .send({})
+            .end(function (err, res) {
+               assert.equal(res.body.error, "missing _id");
+               done();
+            });
+      });
+
+      test("invalid id", function (done) {
+         chai
+            .request(server)
+            .delete("/api/issues/chai")
+            .send({ _id: "bad00001" })
+            .end(function (err, res) {
+               assert.equal(res.body.error, "could not delete");
+               done();
+            });
+      });
+
+      test("delete issue", function (done) {
+         chai
+            .request(server)
+            .delete("/api/issues/chai")
+            .send({
+               _id: id_test,
+               project: "chai"
+            })
+            .end(function (err, res) {
+               assert.equal(res.body.result, "successfully deleted");
+               done();
+            });
+      });
+   });
+
 });
