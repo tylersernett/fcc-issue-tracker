@@ -126,13 +126,27 @@ suite('Functional Tests', function () {
    })
 
    suite('PUT /api/issues/{project} => text', function () {
-      test("No body", function (done) {
+      test("No id", function (done) {
          chai
             .request(server)
             .put("/api/issues/chai")
             .send({})
             .end(function (err, res) {
                assert.equal(res.body, "missing required id");
+               done();
+            });
+      });
+
+      test("invalid id", function (done) {
+         chai
+            .request(server)
+            .put("/api/issues/chai")
+            .send({
+               _id: "bad0001",
+               issue_text: "updated text",
+            })
+            .end(function (err, res) {
+               assert.equal(res.body, "invalid id");
                done();
             });
       });
@@ -162,6 +176,19 @@ suite('Functional Tests', function () {
             })
             .end(function (err, res) {
                assert.equal(res.body, "update success");
+               done();
+            });
+      });
+
+      test("no fields to update", function (done) {
+         chai
+            .request(server)
+            .put("/api/issues/chai")
+            .send({
+               _id: id_test
+            })
+            .end(function (err, res) {
+               assert.equal(res.body, "no fields to update");
                done();
             });
       });
