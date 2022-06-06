@@ -1,7 +1,7 @@
 'use strict';
 const mongoose = require('mongoose');
 const IssueModel = require('../models').Issue;
-
+mongoose.set('useFindAndModify', false); //deprecation
 
 module.exports = function (app) {
    // colon allows for variable project names
@@ -61,31 +61,43 @@ module.exports = function (app) {
 
       .put(function (req, res) {
          let project = req.params.project;
-         const { _id, issue_title, issue_text, created_by, assigned_to, status_text, open } = req.body;
+         let params = {};
+         let _id = ""
+         //only put non-empty parameters into params
+         for (let prop in req.body) {
+            if (req.body[prop]) {
+               if (prop == "open") {
+                  params[prop] = !req.body[prop];
+               } else if (prop != "_id") {
+                  //set 'open' equal to the opposite [checked = !open, unchecked = open]
+                  params[prop] = req.body[prop];
+               } else {
+                  _id = req.body[prop]
+               }
+            }
+         }
+         //console.log("params0:" + JSON.stringify(params))
+         if (Object.keys(params).length === 0) {
+            res.json({ error: 'no update field(s) sent', _id: _id });
+            console.log("exit - no param")
+            return;
+         } else {
+            params['updated_on'] = new Date();
+         }
+         //console.log("params1:" + JSON.stringify(params))
          if (!_id) {
             res.json({ error: 'missing _id' });
+            console.log("exit - no id")
             return;
          }
 
-         if (!issue_title && !issue_text && !created_by && !assigned_to && !status_text && !open) {
-            res.json({ error: 'no update field(s) sent', _id: _id });
-            return;
-         }
-
-         //set 'open' equal to the opposite [checked = !open, unchecked = open]
-         IssueModel.findByIdAndUpdate(_id, {
-            issue_title: issue_title,
-            issue_text: issue_text,
-            created_by: created_by,
-            assigned_to: assigned_to,
-            status_text: status_text,
-            open: !open,
-            updated_on: new Date()
-         }, (err, doc) => {
+         IssueModel.findByIdAndUpdate(_id, params, (err, doc) => {
             if (err) {
+               console.error("could not update")
                res.json({ error: 'could not update', _id: _id });
                return;
             } else {
+               console.log("update success!")
                res.json({ result: 'successfully updated', _id: _id })
                return;
                //console.log("update success: \n" + doc)
