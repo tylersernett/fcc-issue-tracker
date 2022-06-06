@@ -18,8 +18,7 @@ module.exports = function (app) {
                console.log(arrayOfIssues)
                return res.json(arrayOfIssues)
             } else {
-               console.error("error finding issues in db")
-               return;
+               return res.json({ error: "error finding issues in db" });
             }
          })
       })
@@ -30,8 +29,7 @@ module.exports = function (app) {
          //grab vars from req.body & check for required fields
          const { issue_title, issue_text, created_by, assigned_to, status_text } = req.body;
          if (!issue_title || !issue_text || !created_by) {
-            res.json({ error: 'required field(s) missing' });
-            return;
+            return res.json({ error: 'required field(s) missing' });;
          }
 
          //assign all req.body vars to newIssue object
@@ -49,11 +47,9 @@ module.exports = function (app) {
 
          newIssue.save((err, data) => {
             if (err || !data) {
-               res.send("Error saving post");
-               return;
+               return res.json({ error: "Error saving post" });
             } else {
-               res.json(newIssue); //return newIssue from above in JSON form
-               return;
+               return res.json(newIssue); //return newIssue from above in JSON form;
             }
          });
       })
@@ -67,9 +63,9 @@ module.exports = function (app) {
          for (let prop in req.body) {
             if (req.body[prop]) {
                if (prop == "open") {
+                  //set 'open' equal to the opposite [checked = !open, unchecked = open]
                   params[prop] = !req.body[prop];
                } else if (prop != "_id") {
-                  //set 'open' equal to the opposite [checked = !open, unchecked = open]
                   params[prop] = req.body[prop];
                } else {
                   _id = req.body[prop]
@@ -78,28 +74,24 @@ module.exports = function (app) {
          }
          //console.log("params0:" + JSON.stringify(params))
          if (Object.keys(params).length === 0) {
-            res.json({ error: 'no update field(s) sent', _id: _id });
             console.log("exit - no param")
-            return;
+            return res.json({ error: 'no update field(s) sent', _id: _id });;
          } else {
             params['updated_on'] = new Date();
          }
          //console.log("params1:" + JSON.stringify(params))
          if (!_id) {
-            res.json({ error: 'missing _id' });
             console.log("exit - no id")
-            return;
+            return res.json({ error: 'missing _id' });;
          }
 
          IssueModel.findByIdAndUpdate(_id, params, (err, doc) => {
             if (err) {
                console.error("could not update")
-               res.json({ error: 'could not update', _id: _id });
-               return;
+               return res.json({ error: 'could not update', _id: _id });;
             } else {
                console.log("update success!")
-               res.json({ result: 'successfully updated', _id: _id })
-               return;
+               return res.json({ result: 'successfully updated', _id: _id });
                //console.log("update success: \n" + doc)
             }
          })
@@ -110,16 +102,13 @@ module.exports = function (app) {
          let project = req.params.project;
          const _id = req.body._id;
          if (!_id) {
-            res.json({ error: 'missing _id' });
-            return;
+            return res.json({ error: 'missing _id' });
          }
-         IssueModel.findOneAndDelete({ project: project, _id: _id }, (err, data) => {
+         IssueModel.findOneAndDelete({ _id: _id }, (err, data) => {
             if (err) {
-               res.json({ error: 'could not delete', _id: _id });
-               return;
+               return res.json({ error: 'could not delete', '_id': _id });
             } else {
-               res.json({ result: 'successfully deleted', _id: _id });
-               return;
+               return res.json({ result: 'successfully deleted', '_id': _id });
             }
          });
       });

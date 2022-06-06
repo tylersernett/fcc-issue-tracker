@@ -227,7 +227,6 @@ suite('Functional Tests', function () {
             .delete("/api/issues/chai")
             .send({
                _id: id_test,
-               project: "chai"
             })
             .end(function (err, res) {
                assert.equal(res.body.result, "successfully deleted");
