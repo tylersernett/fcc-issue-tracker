@@ -11,13 +11,6 @@ const IssueSchema = new mongoose.Schema({
     created_on: { type: Date },
     updated_on: { type: Date },
 });
+
 const Issue = mongoose.model("Issue", IssueSchema);
-
-// const ProjectSchema = new mongoose.Schema({
-//     name: {type: String, required: true},
-//     issues: [IssueSchema]
-// });
-// const Project = mongoose.model("Project", ProjectSchema);
-
 exports.Issue = Issue;
-// exports.Project = Project;
