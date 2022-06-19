@@ -145,7 +145,7 @@ suite('Functional Tests', function () {
             .request(server)
             .put("/api/issues/chai")
             .send({
-               _id: "bad0001",
+               _id: "5871dda29faedc3491ff93ff",
                issue_text: "updated text",
             })
             .end(function (err, res) {
